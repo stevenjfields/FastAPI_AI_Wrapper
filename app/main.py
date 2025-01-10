@@ -25,6 +25,7 @@ vector_linear_dict = {
 vector_linear.load_state_dict(vector_linear_dict)
 vector_linear.cuda()
 
+# llama_model_id = "meta-llama/Llama-3.2-3B-Instruct"
 llama_model_id = "meta-llama/Llama-3.1-8B-Instruct"
 quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 quantized_model = AutoModelForCausalLM.from_pretrained(

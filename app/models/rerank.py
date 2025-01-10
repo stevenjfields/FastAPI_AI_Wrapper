@@ -8,13 +8,10 @@ class RerankRequest(BaseModel):
     query: str
     documents: list[Document]
 
-class ScoredDocument(Document):
-    score: float
-
-class RankedDocument(BaseModel):
+class ScoredDocument(BaseModel):
     text: str
     score: float
-    rank: int
 
 class RerankResponse(BaseModel):
-    documents: list[RankedDocument]
+    query: str
+    documents: list[ScoredDocument]

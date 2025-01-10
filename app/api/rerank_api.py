@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from sklearn.preprocessing import normalize
 
-from models.rerank import RerankRequest, RerankResponse, ScoredDocument, RankedDocument
+from models.rerank import RerankRequest, RerankResponse, ScoredDocument
 
 router = APIRouter()
 
@@ -29,20 +29,8 @@ def rerank(request: fastapi.Request, rerank_request: RerankRequest):
         scored_documents.append(
             ScoredDocument(
                 text=document.text,
-                embedding=document.embedding,
                 score=np.dot(query_embedding, np.array(document.embedding).T)
             )
         )
     scored_documents.sort(key=lambda x: x.score, reverse=True)
-
-    ranked_documents = []
-    for i, scored_document in enumerate(scored_documents):
-        ranked_documents.append(
-            RankedDocument(
-                text=scored_document.text,
-                score=scored_document.score,
-                rank=i + 1
-            )
-        )
-
-    return RerankResponse(documents=ranked_documents)
+    return RerankResponse(query=rerank_request.query, documents=scored_documents)

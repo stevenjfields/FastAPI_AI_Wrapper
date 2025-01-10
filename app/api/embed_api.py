@@ -3,12 +3,13 @@ from fastapi import APIRouter
 import torch
 from sklearn.preprocessing import normalize
 
-from models.embed import EmbedRequest
+from models.embed import Embedding, EmbedResponse
+
 
 router = APIRouter()
 
 @router.post("/embed")
-def embed(request: fastapi.Request, body: list[str]) -> list[list[float]]:
+def embed(request: fastapi.Request, body: list[str]) -> EmbedResponse:
     embedding_model = request.scope["embedding_model"]
     tokenizer = request.scope["tokenizer"]
     vector_linear = request.scope["vector_linear"]
@@ -20,5 +21,14 @@ def embed(request: fastapi.Request, body: list[str]) -> list[list[float]]:
         last_hidden = last_hidden_state.masked_fill(~attention_mask[..., None].bool(), 0.0)
         text_embeddings = last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
         text_embeddings = normalize(vector_linear(text_embeddings).cpu().numpy())
-    return text_embeddings
 
+    embeddings = []
+    for i in range(len(body)):
+        embeddings.append(
+            Embedding(
+                text=body[i],
+                token_count=input_data["input_ids"][i].nonzero().shape[0],
+                embedding=text_embeddings[i].tolist()
+            )
+        )
+    return EmbedResponse(embeddings=embeddings)

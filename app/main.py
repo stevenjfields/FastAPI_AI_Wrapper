@@ -5,7 +5,8 @@ import uvicorn
 from fastapi.middleware import Middleware
 from transformers import AutoModel, AutoTokenizer
 import torch
-from api.embed_api import router as embed_api
+
+from api import embed_api, rerank_api
 
 model_dir = "./weights"
 if not os.path.exists(model_dir):
@@ -27,13 +28,17 @@ vector_linear.cuda()
 app = fastapi.FastAPI()
 
 def configure_routing(app: fastapi.FastAPI):
-    app.include_router(embed_api)
+    app.include_router(embed_api.router)
+    app.include_router(rerank_api.router)
 
 @app.middleware("http")
 async def add_models(request: fastapi.Request, call_next):
-    request.scope["embedding_model"] = embedding_model
-    request.scope["tokenizer"] = tokenizer
-    request.scope["vector_linear"] = vector_linear
+    embedding_models = {
+        "embedding_model": embedding_model,
+        "tokenizer": tokenizer,
+        "vector_linear": vector_linear
+    }
+    request.scope["embedding_models"] = embedding_models
     response = await call_next(request)
     return response
 

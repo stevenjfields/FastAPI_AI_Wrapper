@@ -5,14 +5,15 @@ from sklearn.preprocessing import normalize
 
 from models.embed import Embedding, EmbedResponse
 
-
 router = APIRouter()
 
-@router.post("/embed")
-def embed(request: fastapi.Request, body: list[str]) -> EmbedResponse:
-    embedding_model = request.scope["embedding_model"]
-    tokenizer = request.scope["tokenizer"]
-    vector_linear = request.scope["vector_linear"]
+@router.post(
+    "/embed",
+    response_model=EmbedResponse,
+    tags=["embed"]
+)
+def embed(request: fastapi.Request, body: list[str]):
+    embedding_model, tokenizer, vector_linear = request.scope["embedding_models"].values()
     with torch.no_grad():
         input_data = tokenizer(body, padding="longest", truncation=True, max_length=512, return_tensors="pt")
         input_data = {k: v.cuda() for k, v in input_data.items()}

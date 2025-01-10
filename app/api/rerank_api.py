@@ -16,7 +16,7 @@ router = APIRouter()
 def rerank(request: fastapi.Request, rerank_request: RerankRequest):
     embedding_model, tokenizer, vector_linear = request.scope["embedding_models"].values()
     with torch.no_grad():
-        input_data = tokenizer(rerank_request.query, padding="longest", truncation=True, max_length=512, return_tensors="pt")
+        input_data = tokenizer(rerank_request.query, padding="longest", truncation=True, max_length=8192, return_tensors="pt")
         input_data = {k: v.cuda() for k, v in input_data.items()}
         attention_mask = input_data["attention_mask"]
         last_hidden_state = embedding_model(**input_data)[0]

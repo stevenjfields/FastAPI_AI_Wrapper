@@ -1,0 +1,3 @@
+[submodule "app/weights"]
+	path = app/weights
+	url = https://huggingface.co/dunzhang/stella_en_400M_v5

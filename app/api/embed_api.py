@@ -3,7 +3,7 @@ from fastapi import APIRouter
 import torch
 from sklearn.preprocessing import normalize
 
-from models.embed import EmbedRequest, EmbedResponse
+from models.embed import EmbedRequest
 
 router = APIRouter()
 

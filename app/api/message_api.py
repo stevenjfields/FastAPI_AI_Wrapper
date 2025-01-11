@@ -2,7 +2,8 @@ import fastapi
 from fastapi import APIRouter
 import torch
 
-from models.message import Message, MessageRequest, MessageResponse, MessageRole
+from models.message import Message, MessageRequest, MessageResponse
+from ai.llama import Role
 
 router = APIRouter()
 
@@ -13,11 +14,10 @@ router = APIRouter()
 )
 def message(request: fastapi.Request, message_request: MessageRequest):
     llama_model = request.scope["llama_model"]
-    input_str = "\n".join([f"{message.content}\n" for message in message_request.messages])
-    output = llama_model.generate(input_str, message_request.temperature, message_request.max_tokens)
+    output = llama_model.generate(message_request.messages, message_request.temperature, message_request.max_tokens)
     messages = message_request.messages.copy()  
     messages.append(Message(
-        role=MessageRole.ASSISTANT,
+        role=Role.ASSISTANT,
         content=output.content
     ))
     return MessageResponse(

@@ -2,13 +2,7 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import List, Optional
 
-class MessageRole(str, Enum):
-    USER = "user"
-    ASSISTANT = "assistant"
-
-class Message(BaseModel):
-    role: MessageRole
-    content: str
+from ai.llama import Message
 
 class MessageRequest(BaseModel):
     messages: List[Message]

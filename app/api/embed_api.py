@@ -13,23 +13,14 @@ router = APIRouter()
     tags=["embed"]
 )
 def embed(request: fastapi.Request, body: list[str]):
-    embedding_model, tokenizer, vector_linear = request.scope["embedding_models"].values()
-    with torch.no_grad():
-        input_data = tokenizer(body, padding="longest", truncation=True, max_length=8192, return_tensors="pt")
-        input_data = {k: v.cuda() for k, v in input_data.items()}
-        attention_mask = input_data["attention_mask"]
-        last_hidden_state = embedding_model(**input_data)[0]
-        last_hidden = last_hidden_state.masked_fill(~attention_mask[..., None].bool(), 0.0)
-        text_embeddings = last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
-        text_embeddings = normalize(vector_linear(text_embeddings).cpu().numpy())
-
-    embeddings = []
-    for i in range(len(body)):
-        embeddings.append(
-            Embedding(
-                text=body[i],
-                token_count=input_data["input_ids"][i].nonzero().shape[0],
-                embedding=text_embeddings[i].tolist()
-            )
+    stella_embed = request.scope["stella_embed"]
+    embeddings = stella_embed.embed_batch(body)
+    embeddings = [
+        Embedding(
+            text=body[i],
+            token_count=embeddings[i].token_count,
+            embedding=embeddings[i].embedding
         )
+        for i in range(len(body))
+    ]
     return EmbedResponse(embeddings=embeddings)

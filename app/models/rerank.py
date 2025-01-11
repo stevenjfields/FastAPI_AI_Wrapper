@@ -2,11 +2,17 @@ from pydantic import BaseModel
 
 class Document(BaseModel):
     text: str
+
+class EmbeddingDocument(Document):
     embedding: list[float]
 
 class RerankRequest(BaseModel):
     query: str
-    documents: list[Document]
+    documents: list[str]
+
+class EmbeddingRerankRequest(BaseModel):
+    query: str
+    documents: list[EmbeddingDocument]
 
 class ScoredDocument(BaseModel):
     text: str

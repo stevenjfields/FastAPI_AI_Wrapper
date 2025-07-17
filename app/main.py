@@ -18,7 +18,7 @@ vector_dim = 256
 stella_embed = StellaEmbed(vector_dim)
 
 llama_model = Llama(
-    LlamaModel.LLaMA_3_1_8B,
+    LlamaModel.LLaMA_3_2_3B,
     device="cuda:0",
     quantization_config=BitsAndBytesConfig(
         load_in_4bit=True,

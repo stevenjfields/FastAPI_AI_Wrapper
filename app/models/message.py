@@ -13,3 +13,16 @@ class MessageResponse(BaseModel):
     messages: list[Message]
     input_tokens: int
     output_tokens: int
+
+class StreamingContentResponse(BaseModel):
+    content: str
+
+class StreamingMetadataResponse(BaseModel):
+    input_tokens: int
+    output_tokens: int
+
+class StreamingStartResponse(BaseModel):
+    message: str = "Streaming started"
+
+class StreamingEndResponse(BaseModel):
+    message: str = "Streaming ended"

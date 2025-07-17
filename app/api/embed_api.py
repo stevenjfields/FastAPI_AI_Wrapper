@@ -3,18 +3,33 @@ from fastapi import APIRouter
 import torch
 from sklearn.preprocessing import normalize
 
-from models.embed import Embedding, EmbedResponse
+from models.embed import Embedding, BatchedEmbedResponse, EmbedRequest, BatchedEmbedRequest
 
 router = APIRouter()
 
+
 @router.post(
     "/embed",
-    response_model=EmbedResponse,
+    response_model=Embedding,
     tags=["embed"]
 )
-def embed(request: fastapi.Request, body: list[str]):
+def embed(request: fastapi.Request, body: EmbedRequest):
     stella_embed = request.scope["stella_embed"]
-    embeddings = stella_embed.embed_batch(body)
+    embedding = stella_embed.embed(body.text)
+    return Embedding(
+        text=body.text,
+        token_count=embedding.token_count,
+        embedding=embedding.embedding
+    )
+
+@router.post(
+    "/embed_batch",
+    response_model=BatchedEmbedResponse,
+    tags=["embed"]
+)
+def embed_batch(request: fastapi.Request, body: BatchedEmbedRequest):
+    stella_embed = request.scope["stella_embed"]
+    embeddings = stella_embed.embed_batch(body.texts)
     embeddings = [
         Embedding(
             text=body[i],
@@ -23,4 +38,4 @@ def embed(request: fastapi.Request, body: list[str]):
         )
         for i in range(len(body))
     ]
-    return EmbedResponse(embeddings=embeddings)
+    return BatchedEmbedResponse(embeddings=embeddings)
